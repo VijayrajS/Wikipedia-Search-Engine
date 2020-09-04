@@ -93,7 +93,7 @@ class IndexGenerator:
         
     def fix_links(self, text):
         # time_s = time.time()
-        
+        text = re.sub(r"(http(s)?://)?([\w-]+\.)+[\w-]+(/[\w- ;,./?%&=]*)?", '', text)
         link_list = re.findall(r"{{[\w |=,:'–\./-]*}}", text)
         text = re.sub(r"{{[\w |=,:'–\./-]*}}", '', text)
         
