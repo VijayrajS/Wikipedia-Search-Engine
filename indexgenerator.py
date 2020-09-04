@@ -55,9 +55,7 @@ class IndexGenerator:
         
         for token in token_set:
             
-            index_string = str(self.docID) if len(self.inv_index[token]) == 0 \
-                            else str(self.docID - int(re.split(r'[a-z]', self.inv_index[token][-1])[0]))
-
+            index_string = str(self.docID)
             for i in range(6):
                 if counter_arrays[i][token] > 0:
                     index_string += (self.abbr_arr[i] + str(counter_arrays[i][token]))
