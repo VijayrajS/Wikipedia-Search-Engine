@@ -6,7 +6,7 @@ from collections import defaultdict, Counter
 
 class IndexGenerator:
     
-    def __init__(self, a, b):
+    def __init__(self):
         
         self.FILE_LIMIT = 10000
         self.inv_index = defaultdict(list)
@@ -22,16 +22,11 @@ class IndexGenerator:
         self.docID = 0
         
         self.abbr_arr = ['t', 'b', 'c', 'i', 'r', 'l']
-        # self.a = a
-        # self.b = b
 
     def processDict(self, wiki):
-        if self.docID % 100 == 0 and self.docID:
+        if self.docID % 1000 == 0 and self.docID:
             print(self.docID)
-        if self.docID%self.FILE_LIMIT == 0 and self.docID:
-            print(self.docID)
-            self.write_index()
-            
+        
         self.title = wiki['title'].strip()
         self.docIDdict.append(self.title)
         counter_arrays = [Counter()]*6
@@ -145,15 +140,13 @@ class IndexGenerator:
         # self.global_times[4] += time.time() - time_s
         return stemmed_tokens
         
-    def write_index(self, final_write=0):
-        final_write = 1 if final_write == 0 else 0
-        with open('inter-' + str(int(self.docID/self.FILE_LIMIT)-1*final_write), 'w') as fp:
+    def write_index(self, dump_number):
+        with open('inter-files/inter-' + str(dump_number), 'wb') as fp:
             for token in sorted(self.inv_index.keys()):
                 fp.write(token + ';')
                 for entry in self.inv_index[token]:
                     fp.write(entry + ';')
                 fp.write('\n')
-        
 
         with open('dictionary.txt', 'a') as fp:
             fp.write(';'.join(self.docIDdict))

@@ -1,9 +1,9 @@
-import re,sys
+import re, sys, os, pickle
 import xml.sax
 import time
 from indexgenerator import IndexGenerator
 
-indGen = IndexGenerator(sys.argv[2], sys.argv[3])
+indGen = IndexGenerator()
 
 class WikiContentHandler(xml.sax.ContentHandler):
     def __init__(self):
@@ -23,9 +23,6 @@ class WikiContentHandler(xml.sax.ContentHandler):
 
     def startElement(self, tag, attributes):
         self.CurrentTag = tag
-        if tag == 'redirect':
-            self.CurrentPage['title'] = attributes['title']
-            
     
     def unsetPage(self):
         self.CurrentPage = {
@@ -45,7 +42,7 @@ class WikiContentHandler(xml.sax.ContentHandler):
         if tag == "page":
             global indGen
             indGen.processDict(self.CurrentPage)
-
+            print(self.CurrentPage['title'])
             self.unsetPage()
 
     def characters(self, content):
@@ -116,6 +113,12 @@ if __name__ == "__main__":
     parser.setContentHandler(Handler)
 
     start = time.time()
-    parser.parse(sys.argv[1])
-    indGen.write_index(final_write = 1)
+    dumps = [u for u in sorted(os.listdir(sys.argv[1])) if u.startswith('enwiki')]
+    print(dumps)
+    
+    for i in range(len(dumps)):
+        print("Dump #: ", str(i))
+        parser.parse(os.path.join(sys.argv[1], dumps[i].strip()))
+        indGen.write_index(i)
+
     print(time.time()-start)
