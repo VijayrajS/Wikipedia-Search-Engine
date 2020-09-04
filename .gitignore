@@ -1,1 +1,4 @@
 Wikidump
+inter-files
+__pycache__
+*.txt
