@@ -146,7 +146,7 @@ class IndexGenerator:
                 fp.write('\n')
 
         with open('dictionary.txt', 'a') as fp:
-            fp.write(';'.join(self.docIDdict))
+            fp.write('^' + '^'.join(self.docIDdict))
 
         self.inv_index = defaultdict(list)
         self.docIDdict = []
