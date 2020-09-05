@@ -6,11 +6,11 @@ from collections import Counter
 class QueryEvaluator:
     def __init__(self):
         self.stemmer = SnowballStemmer('english')
-        self.stop_words = set(stopwords)
+        self.stop_words = set(stopwords.words('english'))
     
     def extractPosting(self, token):
-        file = 'final-index/' + token[:2]
-        fp = open(file, 'r')
+        fil = 'final-index/' + token[:2]
+        fp = open(fil, 'r')
         
         # checking in the first line
         fp.seek(0)
@@ -20,28 +20,32 @@ class QueryEvaluator:
 
         fp.seek(0, 2)
         l = 0; r = fp.tell() - 1
+        end = r
         prev_mid = -1
         mid = (l + r) >> 1
         
-        while prev_mid != mid and l <= r:
-            prev_mid = mid
-            fp.seek(mid)
+        try:
+            while prev_mid != mid and l <= r:
+                prev_mid = mid
+                fp.seek(mid)
 
-            fp.readline()
-            line = fp.readline()
-            print(line)
-            
-            word = line.split(';', 1)[0]
+                print(r,end)
+                fp.readline()
+                print(r,end)
+                line = fp.readline()
+                
+                word = line.split(';', 1)
+                print(word, mid)
 
-            if not line or word[0] > token:
-                r = mid - 1
-            elif word[0] == token:
-                return [word[0], word[1].strip('\n')]
-            else:
-                l = mid
-            mid = (l + r) >> 1
-
-        return ""
+                if not line or word[0] > token:
+                    r = mid - 1
+                elif word[0] == token:
+                    return [word[0], word[1].strip('\n')]
+                else:
+                    l = mid
+                mid = (l + r) >> 1
+        except:
+            return ""
 
     def evaluateQuery(self, query):
         query = query.lower()
