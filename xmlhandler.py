@@ -42,7 +42,6 @@ class WikiContentHandler(xml.sax.ContentHandler):
         if tag == "page":
             global indGen
             indGen.processDict(self.CurrentPage)
-            print(self.CurrentPage['title'])
             self.unsetPage()
 
     def characters(self, content):

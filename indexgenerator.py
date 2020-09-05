@@ -83,7 +83,6 @@ class IndexGenerator:
         
         # self.global_times[1] += time.time() - time_s
         return u
-        
     
     def removeStopWords(self, text):
         # time_s = time.time()
@@ -93,7 +92,7 @@ class IndexGenerator:
         
     def fix_links(self, text):
         # time_s = time.time()
-        text = re.sub(r"(http(s)?://)?([\w-]+\.)+[\w-]+(/[\w- ;,./?%&=]*)?", '', text)
+        text = re.sub(r"(http(s)?://)?([\w\-]+\.)+[\w\-]+(/[\w- ;,./?%&=]*)?", '', text)
         link_list = re.findall(r"{{[\w |=,:'–\./-]*}}", text)
         text = re.sub(r"{{[\w |=,:'–\./-]*}}", '', text)
         
@@ -139,7 +138,7 @@ class IndexGenerator:
         return stemmed_tokens
         
     def write_index(self, dump_number):
-        with open('inter-files/inter-' + str(dump_number), 'wb') as fp:
+        with open('inter-files/inter-' + str(dump_number), 'w') as fp:
             for token in sorted(self.inv_index.keys()):
                 fp.write(token + ';')
                 for entry in self.inv_index[token]:
