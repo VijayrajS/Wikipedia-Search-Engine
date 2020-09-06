@@ -111,7 +111,7 @@ class QueryEvaluator:
                 s = splitted[0]
             
             query_tokens = list(query_token_fields.keys())
-            if len(query_tokens > 1):
+            if len(query_tokens) > 1:
                 query_vector = [len(query_token_fields[t]) for t in query_tokens]
 
         else:
