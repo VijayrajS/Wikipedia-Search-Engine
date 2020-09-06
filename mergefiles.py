@@ -35,7 +35,7 @@ for i in range(len(files)):
 while True:
     try:
         top = hpq.heappop(heap)
-        prefix = top.val[0][:2]
+        prefix = top.val[0][:3]
         
         if current_prefix != prefix:
             if current_prefix:
@@ -52,7 +52,6 @@ while True:
                 write_buffer += '\n'
 
             current_term = top.val[0]
-            print("CURRENT TERM SET TO:", top.val[0])
             write_buffer += top.val[0] + ';' + top.val[1].strip()
 
         else:

@@ -1,4 +1,4 @@
-import time, re, heapq, math
+import time, re, heapq, math, random
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from collections import Counter, defaultdict
@@ -45,83 +45,69 @@ class QueryEvaluator:
         return docids if len(docids) < k else docids[:k]
 
     def extractPosting(self, token):
-        fil = 'final-index/' + token[:2]
+        fil = 'final-index/' + token[:3]
+        print(fil)
         fp = open(fil, 'r')
         
-        # checking in the first line
-        fp.seek(0)
-        line = fp.readline()
-        if token == line.split(';', 1)[0]:
-            return line.strip('\n').split(';', 1)
+        while True:
+            line = fp.readline()
+            line = line.split(';', 1)
 
-        fp.seek(0, 2)
-        l = 0; r = fp.tell() - 1
-        end = r
-        prev_mid = -1
-        mid = (l + r) >> 1
-        
-        try:
-            while prev_mid != mid and l <= r:
-                prev_mid = mid
-                fp.seek(mid)
+            if line[0] == token:
+                return [line[0], line[1].strip()]
+            
+        return ''
 
-                fp.readline()
-                line = fp.readline()
-                word = line.split(';', 1)
-
-                if not line or word[0] > token:
-                    r = mid - 1
-                elif word[0] == token:
-                    return [word[0], word[1].strip('\n')]
-                else:
-                    l = mid
-                mid = (l + r) >> 1
-        except:
-            return ""
 
     def MultiWordQuery(self, query_vector, query_tokens, posting_list, fields, k):
         tfidf_vectors = defaultdict(lambda: [0] * len(query_tokens))
         
-        posting_list = [';'.split(u) for u in posting_list]
+        posting_list = [u.split(';') for u in posting_list]
         docset = None
         idf = []
         
         for lis in posting_list:
             idf.append(self.N_doc/len(lis))
-            docIDs = [int(re.findall(r'[a-z]+', posting)[0]) for posting in lis]
+            docIDs = set()
+            for posting in lis:
+                if posting:
+                    docIDs.add(int(re.split(r'([a-z]+)', posting)[0]))
+            
             if not docset:
-                docset = set(docIDs)
+                docset = docIDs
             else:
                 docset = set.intersection(docset, set(docIDs))
-        
-        tfidf_scores = [{}]*len(query_tokens)
+        tfidf_scores = [{} for _ in range(len(query_tokens))]
         
         for i in range(len(posting_list)):
             for posting in posting_list[i]:
                 l = re.split(r'([a-z]+)',posting)
-                if int(l[0]) in docset:
+                if l[0] != '' and int(l[0]) in docset:
+                    
                     tf = sum([int(l[j]) for j in range(2, len(l), 2)])
                     tf = 1 + math.log10(tf)
                     
                     if not fields:
                         if 't' in l:
-                            tf *= 2
-                    else:
+                            tf *= 3
+
+                    if fields:
                         for j in range(1, len(l), 2):
                             if l[j] in fields[query_tokens[i]]:
-                                tf *= 1.5
+                                tf *= 10
 
-                    tfidf = tf * idf[j]
-                    tfidf_scores[j][l[0]] = tfidf
-        
+                    tfidf = tf * idf[i]
+                    tfidf_scores[i][int(l[0])] = tfidf
+
         heap = []
         # calculate IIIlarity scores
         for docID in docset:
-            vector = [tfidf_scores[i][docID] for i in range(len(tfidf_scores))]
-            docscore = sum([vector[i]*query_vector[i] for i in range(len(vector))]) / math.sqrt(sum(map(lambda x: x*x, vector))) 
+            vector = [tfidf_scores[i][docID] for i in range(len(query_tokens))]
+            docscore = sum([vector[i]*query_vector[i] for i in range(len(vector))])
             heap.append((-docscore, docID))
         
         heapq.heapify(heap)
+        print(heap[:k])
         docids = [doc[1] for doc in heap]
         return docids if len(docids) < k else docids[:k]
 
@@ -156,7 +142,6 @@ class QueryEvaluator:
                 query_vector = [q_count[token] for token in query_tokens]
         
         query_pl = [] #posting lists related to the query
-        
         for query_term in query_tokens:
             posting_list = self.extractPosting(query_term)
             
@@ -165,7 +150,6 @@ class QueryEvaluator:
                    return self.OneWordQuery(posting_list[1], posting_list[0], query_token_fields, k)
 
             else:
-                # self.calculateTFIDF(query_vector, posting, , query_token[1])
                 query_pl.append(posting_list[1])
         
         return self.MultiWordQuery(query_vector, query_tokens, query_pl, query_token_fields, k)
