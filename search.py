@@ -10,12 +10,16 @@ class QueryEvaluator:
         # open docID title file
         
     def OneWordQuery(self, query, fields, k):
-        posting_list = query[1].split(';')
+        # print(query)
+        posting_list = query.split(';')
         heap = []
         
+        # print(posting_list)
         for posting in posting_list:
             if not fields:
                 nos = [int(u) for u in re.findall(r'\d+', posting)]
+                if not nos:
+                    break
                 entry = (-sum(nos[1:]), nos[0])
                 heap.append(entry)
             else:
@@ -33,7 +37,7 @@ class QueryEvaluator:
                 heap.append(entry)
         
         heapq.heapify(heap)
-        docids = [heap[1] for doc in heap]
+        docids = [doc[1] for doc in heap]
         return docids if len(docids) < k else docids[:k]
     
     def extractPosting(self, token):
