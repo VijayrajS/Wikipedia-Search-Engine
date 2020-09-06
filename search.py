@@ -35,9 +35,8 @@ class QueryEvaluator:
                     if field_p[i] in fields[term]:
                         sum_ += 100*nos[i+1]
                     else:
-                        sum_ += nos[i+1]/300
+                        sum_ += nos[i+1]/10
 
-                
                 entry = (-sum_, nos[0])
                 heap.append(entry)
         
