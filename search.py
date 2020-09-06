@@ -8,6 +8,7 @@ class QueryEvaluator:
         self.stemmer = SnowballStemmer('english')
         self.stop_words = set(stopwords.words('english'))
         # open docID title file
+        self.N_doc = 731739
         
     def OneWordQuery(self, query, term, fields, k):
         # print(query)
@@ -43,7 +44,7 @@ class QueryEvaluator:
         heapq.heapify(heap)
         docids = [doc[1] for doc in heap]
         return docids if len(docids) < k else docids[:k]
-    
+
     def extractPosting(self, token):
         fil = 'final-index/' + token[:2]
         fp = open(fil, 'r')
@@ -79,29 +80,52 @@ class QueryEvaluator:
         except:
             return ""
 
-    def topK(self, query_vector, query_tokens, posting_list, fields, k):
+    def MultiWordQuery(self, query_vector, query_tokens, posting_list, fields, k):
         tfidf_vectors = defaultdict(lambda: [0] * len(query_tokens))
         
         posting_list = [';'.split(u) for u in posting_list]
-        
         docset = None
+        idf = []
         
         for lis in posting_list:
-            docIDs = [re.findall(r'\d+', posting)[0] for posting in lis]
+            idf.append(self.N_doc/len(lis))
+            docIDs = [int(re.findall(r'[a-z]+', posting)[0]) for posting in lis]
             if not docset:
                 docset = set(docIDs)
             else:
                 docset = set.intersection(docset, set(docIDs))
+        
+        tfidf_scores = [{}]*len(query_tokens)
+        
+        for i in range(len(posting_list)):
+            for posting in posting_list[i]:
+                l = re.split(r'([a-z]+)',posting)
+                if int(l[0]) in docset:
+                    tf = sum([int(l[j]) for j in range(2, len(l), 2)])
+                    tf = 1 + math.log10(tf)
+                    
+                    if not fields:
+                        if 't' in l:
+                            tf *= 2
+                    else:
+                        for j in range(1, len(l), 2):
+                            if l[j] in fields[query_tokens[i]]:
+                                tf *= 1.5
 
-        # for i in range(len(posting_list)):
-            
-        #     idf = math.log()
-        #     nos = [int(u) for u in re.findall(r'\d+', posting_list[i])]
-        #     if fields == None:
-        #         # if 't' posting_list[i]
-        #         # tf = sum(nos[1:])
-                
-    
+                    tfidf = tf * idf[j]
+                    tfidf_scores[j][l[0]] = tfidf
+        
+        heap = []
+        # calculate IIIlarity scores
+        for docID in docset:
+            vector = [tfidf_scores[i][docID] for i in range(len(tfidf_scores))]
+            docscore = sum([vector[i]*query_vector[i] for i in range(len(vector))]) / math.sqrt(sum(map(lambda x: x*x, vector))) 
+            heap.append((-docscore, docID))
+        
+        heapq.heapify(heap)
+        docids = [doc[1] for doc in heap]
+        return docids if len(docids) < k else docids[:k]
+
     def evaluateQuery(self, query, k):
         query = query.lower()
         query_fields = re.findall(r'[tbcirl]:', query)
@@ -145,7 +169,7 @@ class QueryEvaluator:
                 # self.calculateTFIDF(query_vector, posting, , query_token[1])
                 query_pl.append(posting_list[1])
         
-        return self.topK(query_vector, query_tokens)
+        return self.MultiWordQuery(query_vector, query_tokens, query_pl, query_token_fields, k)
         
     def processText(self, text):
         toks = re.findall(r"[\w']{3,}", text.replace("'", "").replace("_", ""))
