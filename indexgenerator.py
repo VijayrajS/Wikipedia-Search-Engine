@@ -86,13 +86,13 @@ class IndexGenerator:
     
     def removeStopWords(self, text):
         # time_s = time.time()
-        u = [word for word in text if word not in self.stop_words and ord(word[0]) <= ord('z')]
+        u = [word for word in text if word not in self.stop_words and ord(word[0]) <= ord('z') and ord(word[1]) <= 300 and ord(word[2]) <= 300]
         # self.global_times[2] += time.time() - time_s
         return u
         
     def fix_links(self, text):
         # time_s = time.time()
-        text = re.sub(r"(http(s)?://)?([\w\-]+\.)+[\w\-]+(/[\w- ;,./?%&=]*)?", '', text)
+        text = re.sub(r"(http(s)?://)?([\w\-]+\.)+[\w\-]+(/[\w\- ;,./?%&=]*)?", '', text)
         link_list = re.findall(r"{{[\w |=,:'–\./-]*}}", text)
         text = re.sub(r"{{[\w |=,:'–\./-]*}}", '', text)
         
