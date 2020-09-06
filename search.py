@@ -32,7 +32,7 @@ class QueryEvaluator:
 
                 for i in range(len(nos)-1):
                     if field_p[i] in fields[term]:
-                        sum_ += 300*nos[i+1]
+                        sum_ += 100*nos[i+1]
                     else:
                         sum_ += nos[i+1]/300
 
