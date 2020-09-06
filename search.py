@@ -9,7 +9,7 @@ class QueryEvaluator:
         self.stop_words = set(stopwords.words('english'))
         # open docID title file
         
-    def OneWordQuery(self, query, fields, k):
+    def OneWordQuery(self, query, term, fields, k):
         # print(query)
         posting_list = query.split(';')
         heap = []
@@ -20,20 +20,24 @@ class QueryEvaluator:
                 nos = [int(u) for u in re.findall(r'\d+', posting)]
                 if not nos:
                     break
-                entry = (-sum(nos[1:]), nos[0])
+                title_factor = 10 if 't' in posting else 1
+                entry = (-sum(nos[1:])*title_factor, nos[0])
                 heap.append(entry)
             else:
                 nos = [int(u) for u in re.findall(r'\d+', posting)]
+                if not nos:
+                    break
                 field_p = re.findall(r'[a-z]', posting)
                 sum_ = 0
-                
+
                 for i in range(len(nos)-1):
-                    if field_p[i] in fields[query]:
-                        sum_ += 30 * nos[i+1]
+                    if field_p[i] in fields[term]:
+                        sum_ += 300*nos[i+1]
                     else:
-                        sum_ += nos[i+1]/30
+                        sum_ += nos[i+1]/300
+
                 
-                entry = (-sum(nos[1:]), nos[0])
+                entry = (-sum_, nos[0])
                 heap.append(entry)
         
         heapq.heapify(heap)
@@ -135,7 +139,7 @@ class QueryEvaluator:
             
             if len(query_tokens) == 1:
                 if posting_list != "":
-                   return self.OneWordQuery(posting_list[1], query_token_fields, k)
+                   return self.OneWordQuery(posting_list[1], posting_list[0], query_token_fields, k)
 
             else:
                 # self.calculateTFIDF(query_vector, posting, , query_token[1])
