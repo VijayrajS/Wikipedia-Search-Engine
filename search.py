@@ -121,7 +121,7 @@ class QueryEvaluator:
             query_token_fields = None
             query_tokens = list(set(query_tokens))
 
-            if len(query_tokens > 1):
+            if len(query_tokens) > 1:
                 query_vector = [q_count[token] for token in query_tokens]
         
         query_pl = [] #posting lists related to the query
