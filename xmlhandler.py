@@ -119,5 +119,9 @@ if __name__ == "__main__":
         print("Dump #: ", str(i))
         parser.parse(os.path.join(sys.argv[1], dumps[i].strip()))
         indGen.write_index(i)
-
+    
     print(time.time()-start)
+    
+    with open('ndocs.txt', 'w') as fp:
+        fp.write(str(indGen.docID + 1))
+

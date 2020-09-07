@@ -11,7 +11,6 @@ class QueryEvaluator:
         self.N_doc = 731739
         
     def OneWordQuery(self, query, term, fields, k):
-        # print(query)
         posting_list = query.split(';')
         heap = []
         
@@ -45,7 +44,8 @@ class QueryEvaluator:
         return docids if len(docids) < k else docids[:k]
 
     def extractPosting(self, token):
-        fil = 'final-index/' + token[:3]
+        fname = token[:3]
+        fil = 'final-index/' + fname
         print(fil)
         fp = open(fil, 'r')
         
@@ -83,18 +83,23 @@ class QueryEvaluator:
             for posting in posting_list[i]:
                 l = re.split(r'([a-z]+)',posting)
                 if l[0] != '' and int(l[0]) in docset:
+                    if l[0] == '144657':
+                        print(posting)
                     
                     tf = sum([int(l[j]) for j in range(2, len(l), 2)])
-                    tf = 1 + math.log10(tf)
+                    tf = (1 + math.log10(tf))**2
                     
                     if not fields:
                         if 't' in l:
-                            tf *= 3
-
+                            tf = tf **3
+                        else:
+                            tf /= 2
                     if fields:
                         for j in range(1, len(l), 2):
                             if l[j] in fields[query_tokens[i]]:
-                                tf *= 10
+                                tf = tf**3
+                            else:
+                                tf = tf**0.8
 
                     tfidf = tf * idf[i]
                     tfidf_scores[i][int(l[0])] = tfidf

@@ -86,7 +86,7 @@ class IndexGenerator:
     
     def removeStopWords(self, text):
         # time_s = time.time()
-        u = [word for word in text if word not in self.stop_words and ord(word[0]) <= ord('z') and ord(word[1]) <= 300 and ord(word[2]) <= 300]
+        u = [word for word in text if word not in self.stop_words and ord(word[0]) <= ord('z') and ord(word[1]) <= ord('z') and ord(word[2]) <= ord('z')]
         # self.global_times[2] += time.time() - time_s
         return u
         

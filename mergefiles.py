@@ -31,11 +31,12 @@ for i in range(len(files)):
     token, token_cnt = line.split(';', 1)
     n = Node(token, token_cnt, i)
     hpq.heappush(heap, n)
+terms = 0
 
 while True:
     try:
         top = hpq.heappop(heap)
-        prefix = top.val[0][:3]
+        prefix =  top.val[0][:3]
         
         if current_prefix != prefix:
             if current_prefix:
@@ -48,6 +49,7 @@ while True:
             print("CURRENT PREFIX SET TO:", current_prefix)
         
         if current_term != top.val[0]:
+            terms += 1
             if current_term != '':
                 write_buffer += '\n'
 
@@ -68,8 +70,9 @@ while True:
         except:
             continue
     except IndexError:
-        print(prefix)
-        print(write_buffer)
         with open('final-index/' + prefix, 'a') as fp:
-                fp.write(write_buffer)
-        break
+            fp.write(write_buffer)
+            break
+
+print(terms)
+
