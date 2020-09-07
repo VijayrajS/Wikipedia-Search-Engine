@@ -92,8 +92,12 @@ class QueryEvaluator:
                     if not fields:
                         if 't' in l:
                             tf = tf **3
+                        if 'i' in l:
+                            tf *= 2
+                        if 'l' in l:
+                            tf = tf ** 0.5
                         else:
-                            tf /= 2
+                            tf /= 3
                     if fields:
                         for j in range(1, len(l), 2):
                             if l[j] in fields[query_tokens[i]]:
