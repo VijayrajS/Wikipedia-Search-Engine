@@ -1,1 +1,1 @@
-python 20171026/xmlhandler.py $1 $2 $3
+python xmlhandler.py $1 $2 $3
